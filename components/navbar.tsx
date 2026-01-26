@@ -52,16 +52,13 @@ export function Navbar({ sidebarCollapsed, onMobileMenuToggle }: NavbarProps) {
           </div>
         </div>
 
-        {/* Right Section */}
         <div className="flex items-center gap-2">
-          {/* Mobile Search */}
           <Button variant="ghost" size="icon" className="md:hidden text-foreground">
             <Search className="h-5 w-5" />
             <span className="sr-only">Buscar</span>
           </Button>
 
-          {/* Notifications */}
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative text-foreground">
                 <Bell className="h-5 w-5" />
@@ -113,9 +110,8 @@ export function Navbar({ sidebarCollapsed, onMobileMenuToggle }: NavbarProps) {
                 Ver todas las notificaciones
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
 
-          {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
