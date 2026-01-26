@@ -35,7 +35,7 @@ import {
 export const mainNavItems = [
     {
         title: "Dashboard",
-        href: "/dashboard",
+        href: "/test",
         icon: LayoutDashboard,
     },
     {
@@ -55,12 +55,12 @@ export const mainNavItems = [
     },
     {
         title: "Convenios",
-        href: "/convenios",
+        href: "/test/convenios",
         icon: Handshake, // CONVENIOS
     },
     {
         title: "Descuentos",
-        href: "/descuentos",
+        href: "/test/descuentos",
         icon: Percent, // DESCUENTOS + CODIGOS_DESCUENTO
     },
 ];
@@ -69,12 +69,12 @@ export const mainNavItems = [
 export const secondaryNavItems = [
     {
         title: "Roles",
-        href: "/roles",
+        href: "/test/roles",
         icon: Shield, // ROLES + USUARIO_ROLES
     },
     {
         title: "Tipos de Usuario",
-        href: "/tipos-usuario",
+        href: "/test/tipos-usuario",
         icon: UsersRound, // TIPOS_USUARIO
     },
 ];
