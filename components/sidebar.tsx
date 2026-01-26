@@ -17,6 +17,12 @@ import {
     ChevronRight,
     LogOut,
     Zap,
+    Building2,
+    Handshake,
+    Percent,
+    Ticket,
+    Shield,
+    UsersRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,50 +32,50 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const mainNavItems = [
+export const mainNavItems = [
     {
         title: "Dashboard",
-        href: "/",
+        href: "/dashboard",
         icon: LayoutDashboard,
     },
     {
-        title: "Analíticas",
-        href: "/analytics",
-        icon: BarChart3,
+        title: "Eventos",
+        href: "/eventos",
+        icon: Ticket, // tabla EVENTOS (core)
     },
     {
         title: "Usuarios",
-        href: "/users",
-        icon: Users,
+        href: "/usuarios",
+        icon: Users, // USUARIOS + TIPOS_USUARIO
     },
     {
-        title: "Productos",
-        href: "/products",
-        icon: Package,
+        title: "Empresas",
+        href: "/empresas",
+        icon: Building2, // EMPRESAS
     },
     {
-        title: "Documentos",
-        href: "/documents",
-        icon: FileText,
+        title: "Convenios",
+        href: "/convenios",
+        icon: Handshake, // CONVENIOS
     },
     {
-        title: "Mensajes",
-        href: "/messages",
-        icon: Mail,
-        badge: 3,
+        title: "Descuentos",
+        href: "/descuentos",
+        icon: Percent, // DESCUENTOS + CODIGOS_DESCUENTO
     },
 ];
 
-const secondaryNavItems = [
+
+export const secondaryNavItems = [
     {
-        title: "Configuración",
-        href: "/settings",
-        icon: Settings,
+        title: "Roles",
+        href: "/roles",
+        icon: Shield, // ROLES + USUARIO_ROLES
     },
     {
-        title: "Ayuda",
-        href: "/help",
-        icon: HelpCircle,
+        title: "Tipos de Usuario",
+        href: "/tipos-usuario",
+        icon: UsersRound, // TIPOS_USUARIO
     },
 ];
 
@@ -131,17 +137,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                                     {!collapsed && (
                                         <>
                                             <span>{item.title}</span>
-                                            {item.badge && (
-                                                <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                                                    {item.badge}
-                                                </span>
-                                            )}
                                         </>
-                                    )}
-                                    {collapsed && item.badge && (
-                                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                                            {item.badge}
-                                        </span>
                                     )}
                                 </Link>
                             );
@@ -152,11 +148,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                                         <TooltipTrigger asChild>{NavContent}</TooltipTrigger>
                                         <TooltipContent side="right" className="flex items-center gap-2">
                                             {item.title}
-                                            {item.badge && (
-                                                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                                                    {item.badge}
-                                                </span>
-                                            )}
                                         </TooltipContent>
                                     </Tooltip>
                                 );

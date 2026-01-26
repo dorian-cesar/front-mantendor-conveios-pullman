@@ -15,6 +15,12 @@ import {
   LogOut,
   Zap,
   X,
+  Building2,
+  Handshake,
+  Percent,
+  Shield,
+  Ticket,
+  UsersRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,18 +30,51 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-const mainNavItems = [
-  { title: "Dashboard", href: "/", icon: LayoutDashboard },
-  { title: "Analíticas", href: "/analytics", icon: BarChart3 },
-  { title: "Usuarios", href: "/users", icon: Users },
-  { title: "Productos", href: "/products", icon: Package },
-  { title: "Documentos", href: "/documents", icon: FileText },
-  { title: "Mensajes", href: "/messages", icon: Mail, badge: 3 },
+export const mainNavItems = [
+  {
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Eventos",
+    href: "/eventos",
+    icon: Ticket, // tabla EVENTOS (core)
+  },
+  {
+    title: "Usuarios",
+    href: "/usuarios",
+    icon: Users, // USUARIOS + TIPOS_USUARIO
+  },
+  {
+    title: "Empresas",
+    href: "/empresas",
+    icon: Building2, // EMPRESAS
+  },
+  {
+    title: "Convenios",
+    href: "/convenios",
+    icon: Handshake, // CONVENIOS
+  },
+  {
+    title: "Descuentos",
+    href: "/descuentos",
+    icon: Percent, // DESCUENTOS + CODIGOS_DESCUENTO
+  },
 ];
 
-const secondaryNavItems = [
-  { title: "Configuración", href: "/settings", icon: Settings },
-  { title: "Ayuda", href: "/help", icon: HelpCircle },
+
+export const secondaryNavItems = [
+  {
+    title: "Roles",
+    href: "/roles",
+    icon: Shield, // ROLES + USUARIO_ROLES
+  },
+  {
+    title: "Tipos de Usuario",
+    href: "/tipos-usuario",
+    icon: UsersRound, // TIPOS_USUARIO
+  },
 ];
 
 interface MobileSidebarProps {
@@ -78,11 +117,6 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
                 >
                   <item.icon className="h-5 w-5 shrink-0" />
                   <span>{item.title}</span>
-                  {item.badge && (
-                    <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                      {item.badge}
-                    </span>
-                  )}
                 </Link>
               );
             })}
