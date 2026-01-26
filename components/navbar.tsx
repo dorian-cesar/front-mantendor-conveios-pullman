@@ -12,8 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { GlobalSearch } from "@/components/NavSearch"
+
+
 
 interface NavbarProps {
   sidebarCollapsed: boolean;
@@ -41,14 +43,9 @@ export function Navbar({ sidebarCollapsed, onMobileMenuToggle }: NavbarProps) {
           <span className="sr-only">Abrir menú</span>
         </Button>
 
-        {/* Search */}
         <div className="hidden md:flex items-center gap-2 flex-1 max-w-md">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Buscar..."
-              className="pl-9 bg-secondary border-border focus:border-primary"
-            />
+          <div className="w-full">
+            <GlobalSearch />
           </div>
         </div>
 
