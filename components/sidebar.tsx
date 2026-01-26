@@ -39,13 +39,13 @@ export const mainNavItems = [
         icon: LayoutDashboard,
     },
     {
-        title: "Eventos",
-        href: "/eventos",
+        title: "Boletos",
+        href: "/test/eventos",
         icon: Ticket, // tabla EVENTOS (core)
     },
     {
         title: "Usuarios",
-        href: "/usuarios",
+        href: "/test/usuarios",
         icon: Users, // USUARIOS + TIPOS_USUARIO
     },
     {
