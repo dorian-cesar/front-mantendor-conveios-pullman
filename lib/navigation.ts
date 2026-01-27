@@ -10,7 +10,7 @@ export const navigation: SearchItem[] = [
     // Dashboard
     {
         label: "Dashboard",
-        description: "Resumen general del sistema",
+        description: "Resumen del sistema",
         href: "/test",
         group: "General",
     },
@@ -26,7 +26,7 @@ export const navigation: SearchItem[] = [
     // Convenios y Beneficios
     {
         label: "Convenios",
-        description: "convenios · acuerdos · beneficios · alianzas · comerciales · empresas",
+        description: "convenios · acuerdos · beneficios · alianzas · comerciales · codigos",
         href: "/test/convenios",
         group: "Convenios y Beneficios",
     },
