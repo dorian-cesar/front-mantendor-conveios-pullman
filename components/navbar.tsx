@@ -116,7 +116,7 @@ export function Navbar({ sidebarCollapsed, onMobileMenuToggle }: NavbarProps) {
                 className="flex items-center gap-2 px-2 hover:bg-secondary"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder-avatar.jpg" alt="Avatar" />
+                  {/* <AvatarImage src="/placeholder-avatar.jpg" alt="Avatar" /> */}
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                     AD
                   </AvatarFallback>
