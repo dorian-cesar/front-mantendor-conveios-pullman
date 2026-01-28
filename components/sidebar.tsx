@@ -68,11 +68,6 @@ export const secondaryNavItems = [
         icon: Users, // USUARIOS + TIPOS_USUARIO
     },
     {
-        title: "Roles",
-        href: "/test/roles",
-        icon: Shield, // ROLES + USUARIO_ROLES
-    },
-    {
         title: "Pasajeros",
         href: "/test/pasajeros",
         icon: IdCard,
