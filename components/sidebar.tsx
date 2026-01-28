@@ -22,7 +22,7 @@ import {
     Percent,
     Ticket,
     Shield,
-    UsersRound,
+    IdCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,11 +44,6 @@ export const mainNavItems = [
         icon: Ticket, // tabla EVENTOS (core)
     },
     {
-        title: "Usuarios",
-        href: "/test/usuarios",
-        icon: Users, // USUARIOS + TIPOS_USUARIO
-    },
-    {
         title: "Empresas",
         href: "/test/empresas",
         icon: Building2, // EMPRESAS
@@ -68,14 +63,19 @@ export const mainNavItems = [
 
 export const secondaryNavItems = [
     {
+        title: "Usuarios y Roles",
+        href: "/test/usuarios",
+        icon: Users, // USUARIOS + TIPOS_USUARIO
+    },
+    {
         title: "Roles",
         href: "/test/roles",
         icon: Shield, // ROLES + USUARIO_ROLES
     },
     {
-        title: "Tipos de Usuario",
-        href: "/test/tipos-usuario",
-        icon: UsersRound, // TIPOS_USUARIO
+        title: "Pasajeros",
+        href: "/test/pasajeros",
+        icon: IdCard,
     },
 ];
 
