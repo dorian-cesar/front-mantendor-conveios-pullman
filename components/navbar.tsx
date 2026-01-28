@@ -14,6 +14,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { GlobalSearch } from "@/components/NavSearch"
+import { ThemeToggle } from "./ThemeToggle";
 
 
 
@@ -32,7 +33,6 @@ export function Navbar({ sidebarCollapsed, onMobileMenuToggle }: NavbarProps) {
       )}
     >
       <div className="flex h-full items-center justify-between px-4 lg:px-6">
-        {/* Mobile Menu Button */}
         <Button
           variant="ghost"
           size="icon"
@@ -130,9 +130,7 @@ export function Navbar({ sidebarCollapsed, onMobileMenuToggle }: NavbarProps) {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">Perfil</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">Configuración</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">Facturación</DropdownMenuItem>
+              <DropdownMenuItem><ThemeToggle /></DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive cursor-pointer">
                 Cerrar sesión
