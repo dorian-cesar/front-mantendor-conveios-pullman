@@ -10,6 +10,8 @@ import { useState, useEffect } from "react"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { Pagination } from "@/components/dashboard/Pagination"
 import { Input } from "@/components/ui/input"
+import AddUserModal from "@/components/modals/add-usuario"
+import { set } from "date-fns"
 
 const mockUsuarios = Array.from({ length: 100 }, (_, i) => ({
   id: i + 1,
@@ -27,6 +29,7 @@ export default function UsuariosPage() {
   const [searchUser, setSearchUser] = useState("")
   const [usuarios, setUsuarios] = useState(mockUsuarios)
   const [filteredUsuarios, setFilteredUsuarios] = useState(mockUsuarios)
+  const [openAddUserModal, setOpenAddUserModal] = useState(false)
 
   const [searchRol, setSearchRol] = useState("")
   const [roles, setRoles] = useState(mockRoles)
@@ -81,7 +84,7 @@ export default function UsuariosPage() {
   const actionButtons = [
     {
       label: "Nuevo Usuario",
-      onClick: () => console.log("Crear nueva usuario"),
+      onClick: () => setOpenAddUserModal(true),
       icon: <Icon.PlusIcon className="h-4 w-4" />
     },
     {
@@ -275,6 +278,11 @@ export default function UsuariosPage() {
           </Card.CardContent>
         </Card.Card>
       </div>
+
+      <AddUserModal
+        open={openAddUserModal}
+        onOpenChange={setOpenAddUserModal}
+      />
     </div>
   )
 }
