@@ -3,7 +3,14 @@ import { ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, CardAction } from "@/components/ui/card"
-import { SearchIcon, XIcon } from "lucide-react"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ChevronDown, SearchIcon, XIcon } from "lucide-react"
 
 interface PageHeaderProps {
     title: string
@@ -14,6 +21,14 @@ interface PageHeaderProps {
         variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
         icon?: ReactNode
     }>
+    actionMenu?: {
+        title: string;
+        items: Array<{
+            label: string
+            onClick: () => void
+            icon?: ReactNode
+        }>
+    }
     showSearch?: boolean
     searchValue?: string
     onSearchChange?: (value: string) => void
@@ -28,6 +43,7 @@ export function PageHeader({
     title,
     description,
     actionButtons,
+    actionMenu,
     showSearch = false,
     searchValue,
     onSearchChange,
@@ -40,26 +56,49 @@ export function PageHeader({
     return (
         <Card>
             <CardHeader>
-                    <CardTitle className="text-3xl font-bold tracking-tight text-foreground">{title}</CardTitle>
-                    {description && (
-                        <CardDescription>{description}</CardDescription>
-                    )}
-                    {actionButtons && actionButtons.length > 0 && (
-                        <CardAction className="pt-2">
-                            <div className="flex flex-wrap gap-2">
-                                {actionButtons.map((button, index) => (
-                                    <Button
-                                        key={index}
-                                        variant={button.variant || "default"}
-                                        onClick={button.onClick}
-                                    >
-                                        {button.icon && <span className="mr-2">{button.icon}</span>}
-                                        {button.label}
-                                    </Button>
-                                ))}
-                            </div>
-                        </CardAction>
-                    )}
+                <CardTitle className="text-3xl font-bold tracking-tight text-foreground">{title}</CardTitle>
+                {description && (
+                    <CardDescription>{description}</CardDescription>
+                )}
+                {(actionButtons || actionMenu) && (
+                    <CardAction className="pt-2">
+                        <div className="flex flex-wrap items-center gap-2">
+
+                            {actionButtons?.map((button, index) => (
+                                <Button
+                                    key={index}
+                                    variant={button.variant || "default"}
+                                    onClick={button.onClick}
+                                >
+                                    {button.icon && <span className="mr-2">{button.icon}</span>}
+                                    {button.label}
+                                </Button>
+                            ))}
+
+                            {actionMenu && (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" className="gap-2">
+                                            {actionMenu.title}
+                                            <ChevronDown className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+
+                                    <DropdownMenuContent align="end">
+                                        {actionMenu.items.map((item, index) => (
+                                            <DropdownMenuItem key={index} onClick={item.onClick}>
+                                                {item.icon && <span className="mr-2">{item.icon}</span>}
+                                                {item.label}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )}
+
+                        </div>
+                    </CardAction>
+                )}
+
             </CardHeader>
 
             {(showSearch || filters || children) && (
