@@ -14,6 +14,7 @@ import { formatDateOnly } from "@/utils/helpers"
 import { es } from "date-fns/locale"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DateRange } from "react-day-picker"
+import ExportModal from "@/components/modals/export";
 import { format } from "date-fns"
 
 const mockEventos = Array.from({ length: 100 }, (_, i) => ({
@@ -36,13 +37,13 @@ const mockEventos = Array.from({ length: 100 }, (_, i) => ({
 }))
 
 export default function EventosPage() {
+    const [openExport, setOpenExport] = useState(false);
     const [searchValue, setSearchValue] = useState("")
     const [eventos, setEventos] = useState(mockEventos)
     const [filteredEventos, setFilteredEventos] = useState(mockEventos)
     const [statusFilter, setStatusFilter] = useState<string | null>(null)
 
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-
 
     const [pagination, setPagination] = useState({
         page: 1,
@@ -125,7 +126,7 @@ export default function EventosPage() {
     const actionButtons = [
         {
             label: "Exportar",
-            onClick: () => console.log("Exportar datos"),
+            onClick: () => setOpenExport(true),
             variant: "outline" as const,
             icon: <Icon.ArrowDownToLine />
         }
@@ -268,6 +269,11 @@ export default function EventosPage() {
                     </Table.TableBody>
                 </Table.Table>
             </Card.Card>
+
+            <ExportModal
+                open={openExport}
+                onOpenChange={setOpenExport}
+            />
         </div>
     )
 }
