@@ -1,19 +1,10 @@
 "use client";
 import { PageHeader } from "@/components/dashboard/page-header"
-import { ArrowDownToLine, Plus, Upload, FileText, Users, Send, Download, ChartColumn, BadgeDollarSign, Undo2, Percent, IdCard, Activity } from "lucide-react"
+import { ArrowDownToLine, Plus, Upload, FileText, Users, Send, Download, ChartColumn, DollarSign, Undo2, Percent, IdCard, Activity } from "lucide-react"
 import * as Card from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
-import { getSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
-
-const actionButtons = [
-    {
-        label: "Exportar",
-        onClick: () => console.log("Exportar datos"),
-        variant: "outline" as const,
-        icon: <ArrowDownToLine />
-    }
-]
+import ExportModal from "@/components/modals/export";
+import { useState } from "react";
 
 const actions = [
     { icon: Plus, label: "Nuevo proyecto", variant: "default" as const },
@@ -24,10 +15,17 @@ const actions = [
     { icon: Download, label: "Exportar datos", variant: "secondary" as const },
 ];
 
-export default async function DashboardPage() {
-    const user = await getSession();
+export default function DashboardPage() {
+    const [openExport, setOpenExport] = useState(false);
 
-    if (!user) redirect("/");
+    const actionButtons = [
+        {
+            label: "Exportar",
+            onClick: () => setOpenExport(true),
+            variant: "outline" as const,
+            icon: <ArrowDownToLine />
+        }
+    ];
 
     return (
         <div className="flex flex-col justify-center space-y-4">
@@ -42,7 +40,7 @@ export default async function DashboardPage() {
                 <Card.Card className="md:col-span-3 row-span-1">
                     <Card.CardHeader>
                         <Card.CardTitle>Ventas</Card.CardTitle>
-                        <Card.CardAction><BadgeDollarSign className="h-4 w-4 text-muted-foreground" /></Card.CardAction>
+                        <Card.CardAction><DollarSign className="h-4 w-4 text-muted-foreground" /></Card.CardAction>
                     </Card.CardHeader>
                     <Card.CardContent>
                         <p>123456789</p>
@@ -116,6 +114,11 @@ export default async function DashboardPage() {
                     </Card.CardContent>
                 </Card.Card>
             </div>
+
+            <ExportModal
+                open={openExport}
+                onOpenChange={setOpenExport}
+            />
         </div>
     );
 }

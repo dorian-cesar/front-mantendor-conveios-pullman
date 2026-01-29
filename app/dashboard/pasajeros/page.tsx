@@ -126,11 +126,11 @@ export default function PasajerosPage() {
                             <Table.TableHead>RUT</Table.TableHead>
                             <Table.TableHead>Nombre</Table.TableHead>
                             <Table.TableHead>Correo</Table.TableHead>
-                            <Table.TableHead>Telefono</Table.TableHead>
                             <Table.TableHead>Tipo Pasajero</Table.TableHead>
                             <Table.TableHead>Empresa</Table.TableHead>
                             <Table.TableHead>Convenio</Table.TableHead>
                             <Table.TableHead>Status</Table.TableHead>
+                            <Table.TableHead className="text-right">Acciones</Table.TableHead>
                         </Table.TableRow>
                     </Table.TableHeader>
 
@@ -143,7 +143,6 @@ export default function PasajerosPage() {
                                     {eventos.nombre} {eventos.apellido}
                                 </Table.TableCell>
                                 <Table.TableCell>{eventos.correo}</Table.TableCell>
-                                <Table.TableCell>{eventos.telefono}</Table.TableCell>
                                 <Table.TableCell>{eventos.tipo_pasajero}</Table.TableCell>
                                 <Table.TableCell>{eventos.empresa}</Table.TableCell>
                                 <Table.TableCell>{eventos.convenio ?? "no definido"}</Table.TableCell>
@@ -151,6 +150,37 @@ export default function PasajerosPage() {
                                     <BadgeStatus status={eventos.status}>
                                         {eventos.status}
                                     </BadgeStatus>
+                                </Table.TableCell>
+                                <Table.TableCell className="text-right">
+                                    <Dropdown.DropdownMenu>
+                                        <Dropdown.DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="size-8">
+                                                <Icon.MoreHorizontalIcon />
+                                            </Button>
+                                        </Dropdown.DropdownMenuTrigger>
+                                        <Dropdown.DropdownMenuContent align="end">
+                                            <Dropdown.DropdownMenuItem>
+                                                <Icon.EyeIcon className="h-4 w-4 mr-2" />
+                                                Ver detalles
+                                            </Dropdown.DropdownMenuItem>
+                                            <Dropdown.DropdownMenuItem>
+                                                <Icon.PencilIcon className="h-4 w-4 mr-2" />
+                                                Editar
+                                            </Dropdown.DropdownMenuItem>
+                                            <Dropdown.DropdownMenuSeparator />
+                                            {eventos.status === "active" ? (
+                                                <Dropdown.DropdownMenuItem variant="destructive">
+                                                    <Icon.BanIcon className="h-4 w-4 mr-2" />
+                                                    Desactivar
+                                                </Dropdown.DropdownMenuItem>
+                                            ) : (
+                                                <Dropdown.DropdownMenuItem>
+                                                    <Icon.CheckIcon className="h-4 w-4 mr-2" />
+                                                    Activar
+                                                </Dropdown.DropdownMenuItem>
+                                            )}
+                                        </Dropdown.DropdownMenuContent>
+                                    </Dropdown.DropdownMenu>
                                 </Table.TableCell>
                             </Table.TableRow>
                         ))}

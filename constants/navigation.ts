@@ -78,7 +78,7 @@ export const NAVIGATION: NavItem[] = [
         title: "Pasajeros",
         href: "/test/pasajeros",
         icon: IdCard,
-        description: "pasajeros · clientes",
+        description: "pasajeros · clientes · personas · tipos de usuarios",
         group: "Operación",
         section: "secondary",
     },
