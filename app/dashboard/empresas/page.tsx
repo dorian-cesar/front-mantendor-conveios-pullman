@@ -12,6 +12,7 @@ import { Pagination } from "@/components/dashboard/Pagination"
 import ExportModal from "@/components/modals/export"
 import AddEmpresaModal from "@/components/modals/add-empresa"
 import UpdateEmpresaModal from "@/components/modals/update-empresa"
+import DetailsEmpresaModal from "@/components/modals/details-empresa"
 import { EmpresasService, type Empresa, type GetEmpresasParams } from "@/services/empresa.service"
 import { toast } from "sonner"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -23,6 +24,7 @@ export default function EmpresasPage() {
     const [openExport, setOpenExport] = useState(false)
     const [openAdd, setOpenAdd] = useState(false)
     const [openUpdate, setOpenUpdate] = useState(false)
+    const [openDetails, setOpenDetails] = useState(false)
     const [selectedEmpresa, setSelectedEmpresa] = useState<Empresa | null>(null)
 
     const [pagination, setPagination] = useState({
@@ -47,7 +49,7 @@ export default function EmpresasPage() {
             }
 
             if (debouncedSearch.trim()) {
-                params.search = debouncedSearch.trim()
+                params.nombre = debouncedSearch.trim()
             }
 
             const response = await EmpresasService.getEmpresas(params)
@@ -109,6 +111,11 @@ export default function EmpresasPage() {
 
     const handleEmpresaUpdated = () => {
         fetchEmpresas()
+    }
+
+    const handleDetailsEmpresa = (empresa: Empresa) => {
+        setSelectedEmpresa(empresa)
+        setOpenDetails(true)
     }
 
     const actionButtons = [
@@ -206,7 +213,9 @@ export default function EmpresasPage() {
                                                 </Button>
                                             </Dropdown.DropdownMenuTrigger>
                                             <Dropdown.DropdownMenuContent align="end">
-                                                <Dropdown.DropdownMenuItem>
+                                                <Dropdown.DropdownMenuItem
+                                                    onClick={() => handleDetailsEmpresa(empresa)}
+                                                >
                                                     <Icon.EyeIcon className="h-4 w-4 mr-2" />
                                                     Ver detalles
                                                 </Dropdown.DropdownMenuItem>
@@ -257,6 +266,13 @@ export default function EmpresasPage() {
                 empresa={selectedEmpresa}
                 onSuccess={handleEmpresaUpdated}
             />
+
+            <DetailsEmpresaModal
+                open={openDetails}
+                onOpenChange={setOpenDetails}
+                empresa={selectedEmpresa}
+            />
+
         </div>
     )
 }

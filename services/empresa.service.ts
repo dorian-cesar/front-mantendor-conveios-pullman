@@ -15,7 +15,7 @@ export interface GetEmpresasParams {
     sortBy?: string;
     order?: "ASC" | "DESC";
     status?: "ACTIVO" | "INACTIVO";
-    search?: string;
+    nombre?: string;
 }
 
 export interface EmpresasResponse {
