@@ -13,6 +13,7 @@ import { Pagination } from "@/components/dashboard/Pagination"
 import { Progress } from "@/components/ui/progress"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import AddConvenioModal from "@/components/modals/add-convenio"
 
 const mockEmpresas = Array.from({ length: 100 }, (_, i) => ({
     id: i + 1,
@@ -27,6 +28,7 @@ export default function ConveniosPage() {
     const [empresas, setEmpresas] = useState(mockEmpresas)
     const [filteredEmpresas, setFilteredEmpresas] = useState(mockEmpresas)
     const [selectedEmpresa, setSelectedEmpresa] = useState<number | null>(null)
+    const [openAddConvenioModal, setOpenAddConvenioModal] = useState(false)
 
     const [pagination, setPagination] = useState({
         page: 1,
@@ -82,7 +84,7 @@ export default function ConveniosPage() {
     const actionButtons = [
         {
             label: "Nuevo Convenio",
-            onClick: () => console.log("Crear nuevo convenio"),
+            onClick: () => setOpenAddConvenioModal(true),
             icon: <Icon.PlusIcon className="h-4 w-4" />
         },
         {
@@ -289,6 +291,11 @@ export default function ConveniosPage() {
                     </Card.CardContent>
                 </Card.Card>
             </div>
+
+            <AddConvenioModal
+                open={openAddConvenioModal}
+                onOpenChange={setOpenAddConvenioModal}
+            />
         </div>
     )
 }

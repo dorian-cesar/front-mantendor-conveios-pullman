@@ -37,27 +37,33 @@ export function useAuth(expirationThresholdMinutes: number = 10): UseAuthReturn 
             setIsAuthenticated(true);
             setUser(currentUser);
             setExpiresIn(validation.expiresIn || null);
-            setIsTokenExpiringSoon(AuthService.isTokenExpiringSoon(expirationThresholdMinutes));
 
-            if (validation.expiresIn && validation.expiresIn <= expirationThresholdMinutes * 60) {
+            const isExpiringSoon = validation.expiresIn
+                ? validation.expiresIn <= expirationThresholdMinutes * 60
+                : false;
+            setIsTokenExpiringSoon(isExpiringSoon);
+
+            if (isExpiringSoon) {
                 console.warn(`Token expira en ${validation.expiresIn} segundos`);
             }
         } else {
-            // Token inválido o expirado
-            AuthService.logout();
-            setIsAuthenticated(false);
-            setUser(null);
-            setExpiresIn(null);
-            setIsTokenExpiringSoon(true);
+            const isDashboard = window.location.pathname.startsWith('/dashboard');
+            if (isDashboard) {
+                AuthService.logout();
+                setIsAuthenticated(false);
+                setUser(null);
+                setExpiresIn(null);
+                setIsTokenExpiringSoon(true);
+            }
         }
-        
+
         setInitialized(true);
     }, [expirationThresholdMinutes]);
 
     useEffect(() => {
         checkToken();
 
-        const intervalId = setInterval(checkToken, 60000);
+        const intervalId = setInterval(checkToken, 30000);
 
         return () => clearInterval(intervalId);
     }, [checkToken]);
