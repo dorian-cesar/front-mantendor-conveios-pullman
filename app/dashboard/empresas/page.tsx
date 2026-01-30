@@ -16,6 +16,7 @@ import DetailsEmpresaModal from "@/components/modals/details-empresa"
 import { EmpresasService, type Empresa, type GetEmpresasParams } from "@/services/empresa.service"
 import { toast } from "sonner"
 import { useDebounce } from "@/hooks/use-debounce"
+import { formatRut } from "@/utils/helpers"
 
 export default function EmpresasPage() {
     const [searchValue, setSearchValue] = useState("")
@@ -118,6 +119,10 @@ export default function EmpresasPage() {
         setOpenDetails(true)
     }
 
+    const handleRefresh = () => {
+        fetchEmpresas();
+    }
+
     const actionButtons = [
         {
             label: "Nueva Empresa",
@@ -126,13 +131,7 @@ export default function EmpresasPage() {
         },
     ]
 
-    const formatRut = (rut: string) => {
-        if (rut.includes('-')) return rut
 
-        const rutBody = rut.slice(0, -1)
-        const dv = rut.slice(-1)
-        return `${rutBody.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}-${dv}`
-    }
 
     return (
         <div className="flex flex-col justify-center space-y-4">
@@ -166,6 +165,8 @@ export default function EmpresasPage() {
                         className="w-full"
                     />
                 }
+                showRefreshButton={true}
+                onRefresh={handleRefresh}
             />
 
             <Card.Card>

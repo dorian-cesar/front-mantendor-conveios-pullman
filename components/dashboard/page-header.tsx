@@ -10,7 +10,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, SearchIcon, XIcon } from "lucide-react"
+import { ChevronDown, SearchIcon, XIcon, RefreshCcw } from "lucide-react"
 
 interface PageHeaderProps {
     title: string
@@ -36,6 +36,8 @@ interface PageHeaderProps {
     filters?: ReactNode
     showPagination?: boolean
     paginationComponent?: ReactNode
+    showRefreshButton?: boolean
+    onRefresh?: () => void
     children?: ReactNode
 }
 
@@ -51,6 +53,8 @@ export function PageHeader({
     filters,
     showPagination = false,
     paginationComponent,
+    showRefreshButton = false,
+    onRefresh,
     children
 }: PageHeaderProps) {
     return (
@@ -138,11 +142,21 @@ export function PageHeader({
                 </CardContent>
             )}
 
-            {showPagination && paginationComponent && (
-                <CardFooter>
-                    {paginationComponent}
-                </CardFooter>
-            )}
+            <CardFooter>
+                {showPagination && paginationComponent && (
+                    <div className="w-full">
+                        {paginationComponent}
+                    </div>
+                )}
+                {showRefreshButton && (
+                    <div>
+                        <Button variant="outline" className="ml-2" onClick={onRefresh}>
+                            <RefreshCcw className="mr-2 h-4 w-4" />
+                            Actualizar
+                        </Button>
+                    </div>
+                )}
+            </CardFooter>
         </Card>
     )
 }
