@@ -1,4 +1,12 @@
 import { Button } from "@/components/ui/button"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
 
 interface PaginationProps {
@@ -9,6 +17,9 @@ interface PaginationProps {
     hasPrevPage: boolean
     hasNextPage: boolean
     className?: string
+    limit?: number
+    limitOptions?: number[]
+    onLimitChange?: (limit: number) => void
 }
 
 export function Pagination({
@@ -19,6 +30,9 @@ export function Pagination({
     hasPrevPage,
     hasNextPage,
     className = "",
+    limit,
+    limitOptions = [10, 20, 50, 100],
+    onLimitChange,
 }: PaginationProps) {
     const getPageNumbers = () => {
         const pages = []
@@ -53,6 +67,28 @@ export function Pagination({
             </div>
 
             <div className="flex items-center gap-1">
+                {onLimitChange && (
+                    <div className="mr-2">
+                        <Select
+                            value={limit ? String(limit) : undefined}
+                            onValueChange={(value) => onLimitChange(Number(value))}
+                        >
+                            <SelectTrigger className="h-8" size="sm">
+                                <SelectValue placeholder="Items" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                <SelectGroup>
+                                    {limitOptions.map((opt) => (
+                                        <SelectItem key={opt} value={String(opt)}>
+                                            {opt}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
                 <Button
                     variant="outline"
                     size="sm"

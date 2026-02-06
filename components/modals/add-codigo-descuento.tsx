@@ -193,9 +193,12 @@ export default function AddCodigoDescuentoModal({
                                                     No hay convenios disponibles
                                                 </SelectItem>
                                             ) : (
-                                                convenios.map((convenio) => (
-                                                    <SelectItem key={convenio.id} value={convenio.id.toString()}>
-                                                        {convenio.nombre} {convenio.empresa && `- ${convenio.empresa.nombre}`}
+                                                convenios.map((convenio, index) => (
+                                                    <SelectItem
+                                                        key={`convenio-${convenio.id}-${index}`}
+                                                        value={`${convenio.id}-${index}`}
+                                                    >
+                                                        {convenio.nombre} {convenio.empresa ? `- ${convenio.empresa.nombre}` : ""}
                                                     </SelectItem>
                                                 ))
                                             )}

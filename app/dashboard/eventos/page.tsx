@@ -10,40 +10,38 @@ import { useState, useEffect } from "react"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { Pagination } from "@/components/dashboard/Pagination"
 import { Calendar } from "@/components/ui/calendar"
-import { formatDateOnly } from "@/utils/helpers"
+import { formatDateOnly, formatNumber } from "@/utils/helpers"
 import { es } from "date-fns/locale"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DateRange } from "react-day-picker"
-import ExportModal from "@/components/modals/export";
+import ExportModal from "@/components/modals/export"
 import { format } from "date-fns"
-
-const mockEventos = Array.from({ length: 100 }, (_, i) => ({
-    id: i + 1,
-    tipo_evento: ["Viaje", "Devolución", "Cambio de asiento"][i % 3],
-    usuario: `Usuario ${(i % 10) + 1}`,
-    pasajero: `Pasajero ${(i % 20) + 1}`,
-    empresa: `Empresa ${(i % 15) + 1}`,
-    ciudad_origen: ["Santiago", "Concepción", "Valparaíso", "La Serena"][i % 4],
-    ciudad_destino: ["Santiago", "Concepción", "Valparaíso", "La Serena"][(i + 1) % 4],
-    fecha_viaje: new Date(2025, i % 12, (i % 28) + 1).toISOString().split('T')[0],
-    numero_asiento: `A${(i % 50) + 1}`,
-    tarifa_base: `$${10000 + (i % 5) * 8000}`,
-    monto_pagado: `$${8000 + (i % 4) * 6000}`,
-    porcentaje_descuento: `${(i % 5) * 10}%`,
-    status: i % 4 === 0 ? "cancelado" : i % 7 === 0 ? "pendiente" : "completado",
-    fecha_evento: new Date(2025, i % 12, (i % 28) + 1, (i % 24), (i % 60)).toISOString(),
-    convenio: i % 3 === 0 ? "Convenio " + (i % 8 + 1) : null,
-    codigo_descuento: i % 4 === 0 ? "DESC" + (i % 20) : null
-}))
+import { EventosService, type Evento, type GetEventosParams } from "@/services/evento.service"
+import { toast } from "sonner"
+import { useDebounce } from "@/hooks/use-debounce"
+import { exportToCSV } from "@/utils/exportCSV"
+import { exportToExcel } from "@/utils/exportXLSX"
+import { EmpresasService, type Empresa } from "@/services/empresa.service"
+import { PasajerosService, type Pasajero } from "@/services/pasajero.service"
+import { ConveniosService, type Convenio } from "@/services/convenio.service"
 
 export default function EventosPage() {
     const [openExport, setOpenExport] = useState(false);
     const [searchValue, setSearchValue] = useState("")
-    const [eventos, setEventos] = useState(mockEventos)
-    const [filteredEventos, setFilteredEventos] = useState(mockEventos)
-    const [statusFilter, setStatusFilter] = useState<string | null>(null)
+    const [eventos, setEventos] = useState<Evento[]>([])
+    const [isLoading, setIsLoading] = useState(true)
 
+    // Filtros
+    const [tipoEventoFilter, setTipoEventoFilter] = useState<"COMPRA" | "CAMBIO" | "DEVOLUCION" | null>(null)
+    const [empresaFilter, setEmpresaFilter] = useState<number | null>(null)
+    const [pasajeroFilter, setPasajeroFilter] = useState<number | null>(null)
+    const [convenioFilter, setConvenioFilter] = useState<number | null>(null)
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
+
+    // Datos para selectores
+    const [empresas, setEmpresas] = useState<Empresa[]>([])
+    const [pasajeros, setPasajeros] = useState<Pasajero[]>([])
+    const [convenios, setConvenios] = useState<Convenio[]>([])
 
     const [pagination, setPagination] = useState({
         page: 1,
@@ -54,73 +52,188 @@ export default function EventosPage() {
         hasPrevPage: false,
     })
 
-    useEffect(() => {
-        let filtered = [...eventos]
+    const debouncedSearch = useDebounce(searchValue, 500)
 
-        if (searchValue.trim()) {
-            const search = searchValue.toLowerCase()
-            filtered = filtered.filter(e =>
-                e.usuario.toLowerCase().includes(search) ||
-                e.pasajero.toLowerCase().includes(search) ||
-                e.convenio?.toLowerCase().includes(search) ||
-                e.codigo_descuento?.toLowerCase().includes(search)
-            )
+    const fetchEventos = async () => {
+        setIsLoading(true)
+        try {
+            const params: GetEventosParams = {
+                page: pagination.page,
+                limit: pagination.limit,
+                sortBy: 'id',
+                order: 'DESC',
+            }
+
+            // Aplicar filtros
+            if (tipoEventoFilter) {
+                params.tipo_evento = tipoEventoFilter
+            }
+
+            if (empresaFilter) {
+                params.empresa_id = empresaFilter
+            }
+
+            if (pasajeroFilter) {
+                params.pasajero_id = pasajeroFilter
+            }
+
+            if (convenioFilter) {
+                params.convenio_id = convenioFilter
+            }
+
+            if (dateRange?.from) {
+                params.fecha_inicio = format(dateRange.from, 'yyyy-MM-dd')
+            }
+
+            if (dateRange?.to) {
+                params.fecha_fin = format(dateRange.to, 'yyyy-MM-dd')
+            }
+
+            const response = await EventosService.getEventos(params)
+            setEventos(response.rows)
+
+            setPagination(prev => ({
+                ...prev,
+                total: response.totalItems,
+                totalPages: response.totalPages || 1,
+                hasPrevPage: (response.currentPage || 1) > 1,
+                hasNextPage: (response.currentPage || 1) < (response.totalPages || 1)
+            }))
+        } catch (error) {
+            console.error('Error fetching eventos:', error)
+            toast.error("No se pudieron cargar los eventos")
+        } finally {
+            setIsLoading(false)
         }
-
-        if (statusFilter) {
-            filtered = filtered.filter(e => e.status === statusFilter)
-        }
-
-        if (dateRange?.from || dateRange?.to) {
-            filtered = filtered.filter(e => {
-                const eventoDay = toDayKey(new Date(e.fecha_evento))
-
-                const fromDay = dateRange.from
-                    ? toDayKey(dateRange.from)
-                    : null
-
-                const toDay = dateRange.to
-                    ? toDayKey(dateRange.to)
-                    : null
-
-                if (fromDay && eventoDay < fromDay) return false
-                if (toDay && eventoDay > toDay) return false
-
-                return true
-            })
-        }
-
-        setFilteredEventos(filtered)
-        setPagination(prev => ({ ...prev, page: 1 }))
-    }, [searchValue, statusFilter, dateRange, eventos])
-
-    useEffect(() => {
-        const total = filteredEventos.length
-        const totalPages = Math.ceil(total / pagination.limit)
-        const hasPrevPage = pagination.page > 1
-        const hasNextPage = pagination.page < totalPages
-
-        setPagination(prev => ({
-            ...prev,
-            total,
-            totalPages,
-            hasPrevPage,
-            hasNextPage
-        }))
-    }, [filteredEventos, pagination.page, pagination.limit])
-
-
-    const toDayKey = (date: Date) =>
-        `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
-
-    const getCurrentPageEventos = () => {
-        const startIndex = (pagination.page - 1) * pagination.limit
-        const endIndex = startIndex + pagination.limit
-        return filteredEventos.slice(startIndex, endIndex)
     }
+
+    const fetchEmpresas = async () => {
+        try {
+            const response = await EmpresasService.getEmpresas({
+                page: 1,
+                limit: 100,
+                status: "ACTIVO"
+            })
+            setEmpresas(response.rows)
+        } catch (error) {
+            console.error('Error fetching empresas:', error)
+        }
+    }
+
+    const fetchPasajeros = async () => {
+        try {
+            const response = await PasajerosService.getPasajeros({
+                page: 1,
+                limit: 100,
+                status: "ACTIVO"
+            })
+            setPasajeros(response.rows)
+        } catch (error) {
+            console.error('Error fetching pasajeros:', error)
+        }
+    }
+
+    const fetchConvenios = async () => {
+        try {
+            const response = await ConveniosService.getConvenios({
+                page: 1,
+                limit: 100,
+                status: "ACTIVO"
+            })
+            setConvenios(response.rows)
+        } catch (error) {
+            console.error('Error fetching convenios:', error)
+        }
+    }
+
+    useEffect(() => {
+        fetchEventos()
+        fetchEmpresas()
+        fetchPasajeros()
+        fetchConvenios()
+    }, [
+        pagination.page,
+        pagination.limit,
+        tipoEventoFilter,
+        empresaFilter,
+        pasajeroFilter,
+        convenioFilter,
+        dateRange
+    ])
 
     const handlePageChange = (newPage: number) => {
         setPagination(prev => ({ ...prev, page: newPage }))
+    }
+
+    const handleRefresh = () => {
+        fetchEventos()
+    }
+
+    const handleExport = async (type: "csv" | "excel") => {
+        try {
+            toast.loading("Preparando exportación...", { id: "export" })
+
+            const params: GetEventosParams = {
+                sortBy: "id",
+                order: "DESC",
+            }
+
+            // Aplicar los mismos filtros que en la tabla
+            if (tipoEventoFilter) {
+                params.tipo_evento = tipoEventoFilter
+            }
+            if (empresaFilter) {
+                params.empresa_id = empresaFilter
+            }
+            if (pasajeroFilter) {
+                params.pasajero_id = pasajeroFilter
+            }
+            if (convenioFilter) {
+                params.convenio_id = convenioFilter
+            }
+            if (dateRange?.from) {
+                params.fecha_inicio = format(dateRange.from, 'yyyy-MM-dd')
+            }
+            if (dateRange?.to) {
+                params.fecha_fin = format(dateRange.to, 'yyyy-MM-dd')
+            }
+
+            const response = await EventosService.getEventos(params)
+
+            if (!response.rows.length) {
+                toast.error("No hay datos para exportar", { id: "export" })
+                return
+            }
+
+            const formattedData = response.rows.map(evento => ({
+                ID: evento.id,
+                Tipo_Evento: evento.tipo_evento,
+                Ciudad_Origen: evento.ciudad_origen,
+                Ciudad_Destino: evento.ciudad_destino,
+                Fecha_Viaje: formatDateOnly(evento.fecha_viaje),
+                Tarifa_Base: formatNumber(evento.tarifa_base),
+                Monto_Pagado: formatNumber(evento.monto_pagado),
+                Descuento_Aplicado: `${evento.porcentaje_descuento_aplicado}%`,
+                Empresa: evento.empresa?.nombre || "N/A",
+                Pasajero: evento.pasajero ? `${evento.pasajero.nombres} ${evento.pasajero.apellidos}` : "N/A",
+                Convenio: evento.convenio?.nombre || "N/A",
+                Creado: evento.created_at ? formatDateOnly(evento.created_at) : "N/A",
+            }))
+
+            if (type === "csv") {
+                exportToCSV(formattedData, "eventos.csv")
+                toast.success("CSV exportado correctamente", { id: "export" })
+            }
+
+            if (type === "excel") {
+                exportToExcel(formattedData, "eventos.xlsx")
+                toast.success("Excel exportado correctamente", { id: "export" })
+            }
+
+        } catch (error) {
+            console.error("Error exporting eventos:", error)
+            toast.error("Error al exportar datos", { id: "export" })
+        }
     }
 
     const actionButtons = [
@@ -128,9 +241,18 @@ export default function EventosPage() {
             label: "Exportar",
             onClick: () => setOpenExport(true),
             variant: "outline" as const,
-            icon: <Icon.ArrowDownToLine />
+            icon: <Icon.ArrowDownToLine className="h-4 w-4" />
         }
     ]
+
+    const getTipoEventoLabel = (tipo: "COMPRA" | "CAMBIO" | "DEVOLUCION") => {
+        switch (tipo) {
+            case "COMPRA": return "Compra"
+            case "CAMBIO": return "Cambio"
+            case "DEVOLUCION": return "Devolución"
+            default: return tipo
+        }
+    }
 
     return (
         <div className="flex flex-col justify-center space-y-4">
@@ -139,75 +261,9 @@ export default function EventosPage() {
                 description="Historial de todos los eventos del sistema."
                 actionButtons={actionButtons}
                 showSearch={true}
-                searchValue={searchValue}
-                onSearchChange={setSearchValue}
-                onSearchClear={() => setSearchValue("")}
+                onRefresh={handleRefresh}
+                showRefreshButton={true}
                 showPagination={true}
-                filters={
-                    <div className="flex gap-2 flex-wrap">
-                        <Dropdown.DropdownMenu>
-                            <Dropdown.DropdownMenuTrigger asChild>
-                                <Button variant="outline" className="gap-2">
-                                    <Icon.Filter className="h-4 w-4" />
-                                    {statusFilter ? `Estado: ${statusFilter}` : "Estado"}
-                                </Button>
-                            </Dropdown.DropdownMenuTrigger>
-
-                            <Dropdown.DropdownMenuContent align="start">
-                                <Dropdown.DropdownMenuItem onClick={() => setStatusFilter(null)}>
-                                    Todos
-                                </Dropdown.DropdownMenuItem>
-                                <Dropdown.DropdownMenuItem onClick={() => setStatusFilter("completado")}>
-                                    Completado
-                                </Dropdown.DropdownMenuItem>
-                                <Dropdown.DropdownMenuItem onClick={() => setStatusFilter("pendiente")}>
-                                    Pendiente
-                                </Dropdown.DropdownMenuItem>
-                                <Dropdown.DropdownMenuItem onClick={() => setStatusFilter("cancelado")}>
-                                    Cancelado
-                                </Dropdown.DropdownMenuItem>
-                            </Dropdown.DropdownMenuContent>
-                        </Dropdown.DropdownMenu>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="gap-2">
-                                    <Icon.Calendar className="h-4 w-4" />
-                                    {dateRange?.from
-                                        ? dateRange.to
-                                            ? `${format(dateRange.from, "dd/MM/yyyy")} - ${format(dateRange.to, "dd/MM/yyyy")}`
-                                            : format(dateRange.from, "dd/MM/yyyy")
-                                        : "Fecha evento"}
-                                </Button>
-                            </PopoverTrigger>
-
-                            <PopoverContent align="start" className="p-0">
-                                <Calendar
-                                    mode="range"
-                                    selected={dateRange}
-                                    onSelect={setDateRange}
-                                    numberOfMonths={2}
-                                    locale={es}
-                                    classNames={{
-                                        cell: "p-1",
-                                        day: "h-8 w-8 p-0",
-                                    }}
-                                />
-                            </PopoverContent>
-                        </Popover>
-
-                        {(statusFilter || dateRange) && (
-                            <Button
-                                variant="ghost"
-                                onClick={() => {
-                                    setStatusFilter(null)
-                                    setDateRange(undefined)
-                                }}
-                            >
-                                Limpiar filtros
-                            </Button>
-                        )}
-                    </div>
-                }
                 paginationComponent={
                     <Pagination
                         currentPage={pagination.page}
@@ -219,61 +275,200 @@ export default function EventosPage() {
                         className="w-full"
                     />
                 }
-            >
-            </PageHeader>
+                filters={
+                    <div className="flex flex-col gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label className="text-sm font-medium mb-2 block">Tipo de Evento</label>
+                                <select
+                                    className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                                    value={tipoEventoFilter || ""}
+                                    onChange={(e) => setTipoEventoFilter(e.target.value ? e.target.value as any : null)}
+                                >
+                                    <option value="">Todos los tipos</option>
+                                    <option value="COMPRA">Compra</option>
+                                    <option value="CAMBIO">Cambio</option>
+                                    <option value="DEVOLUCION">Devolución</option>
+                                </select>
+                            </div>
 
+                            <div>
+                                <label className="text-sm font-medium mb-2 block">Empresa</label>
+                                <select
+                                    className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                                    value={empresaFilter || ""}
+                                    onChange={(e) => setEmpresaFilter(e.target.value ? Number(e.target.value) : null)}
+                                >
+                                    <option value="">Todas las empresas</option>
+                                    {empresas.map((empresa) => (
+                                        <option key={empresa.id} value={empresa.id}>
+                                            {empresa.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium mb-2 block">Pasajero</label>
+                                <select
+                                    className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                                    value={pasajeroFilter || ""}
+                                    onChange={(e) => setPasajeroFilter(e.target.value ? Number(e.target.value) : null)}
+                                >
+                                    <option value="">Todos los pasajeros</option>
+                                    {pasajeros.map((pasajero) => (
+                                        <option key={pasajero.id} value={pasajero.id}>
+                                            {pasajero.nombres} {pasajero.apellidos} ({pasajero.rut})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium mb-2 block">Convenio</label>
+                                <select
+                                    className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                                    value={convenioFilter || ""}
+                                    onChange={(e) => setConvenioFilter(e.target.value ? Number(e.target.value) : null)}
+                                >
+                                    <option value="">Todos los convenios</option>
+                                    {convenios.map((convenio) => (
+                                        <option key={convenio.id} value={convenio.id}>
+                                            {convenio.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex items-end gap-4">
+                            <div>
+                                <label className="text-sm font-medium mb-2 block">Fecha del Evento</label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="outline" className="w-full gap-2">
+                                            <Icon.Calendar className="h-4 w-4" />
+                                            {dateRange?.from
+                                                ? dateRange.to
+                                                    ? `${format(dateRange.from, "dd/MM/yyyy")} - ${format(dateRange.to, "dd/MM/yyyy")}`
+                                                    : format(dateRange.from, "dd/MM/yyyy")
+                                                : "Seleccionar rango"}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent align="start" className="p-0">
+                                        <Calendar
+                                            mode="range"
+                                            selected={dateRange}
+                                            onSelect={setDateRange}
+                                            numberOfMonths={2}
+                                            locale={es}
+                                            classNames={{
+                                                cell: "p-1",
+                                                day: "h-8 w-8 p-0",
+                                            }}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+
+                            {(tipoEventoFilter || empresaFilter || pasajeroFilter || convenioFilter || dateRange) && (
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => {
+                                        setTipoEventoFilter(null)
+                                        setEmpresaFilter(null)
+                                        setPasajeroFilter(null)
+                                        setConvenioFilter(null)
+                                        setDateRange(undefined)
+                                    }}
+                                >
+                                    Limpiar filtros
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                }
+            />
             <Card.Card>
                 <Table.Table>
                     <Table.TableHeader>
                         <Table.TableRow>
                             <Table.TableHead>ID</Table.TableHead>
-                            <Table.TableHead>Tipo Evento</Table.TableHead>
-                            <Table.TableHead>Usuario</Table.TableHead>
-                            <Table.TableHead>Pasajero</Table.TableHead>
-                            <Table.TableHead>Empresa</Table.TableHead>
-                            <Table.TableHead>Ciudad Origen</Table.TableHead>
-                            <Table.TableHead>Ciudad Destino</Table.TableHead>
+                            <Table.TableHead>Tipo</Table.TableHead>
+                            <Table.TableHead>Origen - Destino</Table.TableHead>
                             <Table.TableHead>Fecha Viaje</Table.TableHead>
-                            <Table.TableHead>Número Asiento</Table.TableHead>
                             <Table.TableHead>Tarifa Base</Table.TableHead>
                             <Table.TableHead>Monto Pagado</Table.TableHead>
                             <Table.TableHead>Descuento</Table.TableHead>
-                            <Table.TableHead>Status</Table.TableHead>
-                            <Table.TableHead>Fecha Evento</Table.TableHead>
+                            <Table.TableHead>Empresa</Table.TableHead>
+                            <Table.TableHead>Pasajero</Table.TableHead>
                             <Table.TableHead>Convenio</Table.TableHead>
-                            <Table.TableHead>Codigo Descuento</Table.TableHead>
+                            <Table.TableHead>Creado</Table.TableHead>
                         </Table.TableRow>
                     </Table.TableHeader>
-
                     <Table.TableBody>
-                        {getCurrentPageEventos().map((eventos) => (
-                            <Table.TableRow key={eventos.id}>
-                                <Table.TableCell>{eventos.id}</Table.TableCell>
-                                <Table.TableCell>{eventos.tipo_evento}</Table.TableCell>
-                                <Table.TableCell>{eventos.usuario}</Table.TableCell>
-                                <Table.TableCell>{eventos.pasajero}</Table.TableCell>
-                                <Table.TableCell>{eventos.empresa}</Table.TableCell>
-                                <Table.TableCell>{eventos.ciudad_origen}</Table.TableCell>
-                                <Table.TableCell>{eventos.ciudad_destino}</Table.TableCell>
-                                <Table.TableCell>{eventos.fecha_viaje}</Table.TableCell>
-                                <Table.TableCell>{eventos.numero_asiento}</Table.TableCell>
-                                <Table.TableCell>{eventos.tarifa_base}</Table.TableCell>
-                                <Table.TableCell>{eventos.monto_pagado}</Table.TableCell>
-                                <Table.TableCell>{eventos.porcentaje_descuento}</Table.TableCell>
-                                <Table.TableCell><BadgeStatus status={eventos.status}>{eventos.status}</BadgeStatus></Table.TableCell>
-                                <Table.TableCell>{formatDateOnly(eventos.fecha_evento)}</Table.TableCell>
-                                <Table.TableCell>{eventos.convenio ?? "no definido"}</Table.TableCell>
-                                <Table.TableCell>{eventos.codigo_descuento ?? "no definido"}</Table.TableCell>
+                        {isLoading ? (
+                            <Table.TableRow>
+                                <Table.TableCell colSpan={11} className="text-center py-8">
+                                    <div className="flex justify-center">
+                                        <Icon.Loader2Icon className="h-6 w-6 animate-spin" />
+                                    </div>
+                                </Table.TableCell>
                             </Table.TableRow>
-                        ))}
+                        ) : eventos.length === 0 ? (
+                            <Table.TableRow>
+                                <Table.TableCell colSpan={11} className="text-center py-8">
+                                    No se encontraron eventos
+                                </Table.TableCell>
+                            </Table.TableRow>
+                        ) : (
+                            eventos.map((evento) => (
+                                <Table.TableRow key={evento.id}>
+                                    <Table.TableCell>{evento.id}</Table.TableCell>
+                                    <Table.TableCell>
+                                        <BadgeStatus
+                                            status={
+                                                evento.tipo_evento === "COMPRA" ? "active" :
+                                                    evento.tipo_evento === "CAMBIO" ? "warning" : "inactive"
+                                            }
+                                        >
+                                            {getTipoEventoLabel(evento.tipo_evento)}
+                                        </BadgeStatus>
+                                    </Table.TableCell>
+                                    <Table.TableCell>
+                                        {evento.ciudad_origen} → {evento.ciudad_destino}
+                                    </Table.TableCell>
+                                    <Table.TableCell>{formatDateOnly(evento.fecha_viaje)}</Table.TableCell>
+                                    <Table.TableCell>${formatNumber(evento.tarifa_base)}</Table.TableCell>
+                                    <Table.TableCell>${formatNumber(evento.monto_pagado)}</Table.TableCell>
+                                    <Table.TableCell>{evento.porcentaje_descuento_aplicado}%</Table.TableCell>
+                                    <Table.TableCell>
+                                        {evento.empresa?.nombre || "N/A"}
+                                    </Table.TableCell>
+                                    <Table.TableCell>
+                                        {evento.pasajero
+                                            ? `${evento.pasajero.nombres} ${evento.pasajero.apellidos}`
+                                            : "N/A"
+                                        }
+                                    </Table.TableCell>
+                                    <Table.TableCell>
+                                        {evento.convenio?.nombre || "N/A"}
+                                    </Table.TableCell>
+                                    <Table.TableCell>
+                                        {evento.created_at ? formatDateOnly(evento.created_at) : "N/A"}
+                                    </Table.TableCell>
+                                </Table.TableRow>
+                            ))
+                        )}
                     </Table.TableBody>
                 </Table.Table>
             </Card.Card>
 
-            {/* <ExportModal
+            <ExportModal
                 open={openExport}
                 onOpenChange={setOpenExport}
-            /> */}
+                onExport={handleExport}
+            />
         </div>
     )
 }

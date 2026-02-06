@@ -83,6 +83,14 @@ export default function EmpresasPage() {
         setPagination(prev => ({ ...prev, page: newPage }))
     }
 
+    const handleLimitChange = (newLimit: number) => {
+        setPagination(prev => ({
+            ...prev,
+            limit: newLimit,
+            page: 1,
+        }))
+    }
+
     const handleToggleStatus = async (
         id: number,
         currentStatus: "ACTIVO" | "INACTIVO"
@@ -211,6 +219,8 @@ export default function EmpresasPage() {
                         hasPrevPage={pagination.hasPrevPage}
                         hasNextPage={pagination.hasNextPage}
                         className="w-full"
+                        limit={pagination.limit}
+                        onLimitChange={handleLimitChange}
                     />
                 }
                 showRefreshButton={true}

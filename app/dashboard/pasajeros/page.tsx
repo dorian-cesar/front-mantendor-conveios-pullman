@@ -124,13 +124,9 @@ export default function PasajerosPage() {
 
     const fetchTiposPasajero = async () => {
         try {
-            // Intenta obtener de la API, si no usa estáticos
-            const tipos = await TipoPasajeroService.getTiposPasajero();
-            setTiposPasajero(tipos);
-        } catch {
-            // Si falla, usa los datos estáticos
             const tipos = TipoPasajeroService.getTiposPasajeroStatic();
             setTiposPasajero(tipos);
+        } catch {
         }
     }
 
@@ -144,6 +140,15 @@ export default function PasajerosPage() {
     const handlePageChange = (newPage: number) => {
         setPagination(prev => ({ ...prev, page: newPage }))
     }
+
+    const handleLimitChange = (newLimit: number) => {
+        setPagination(prev => ({
+            ...prev,
+            limit: newLimit,
+            page: 1,
+        }))
+    }
+
 
     const handleToggleStatus = async (
         id: number,
@@ -320,6 +325,8 @@ export default function PasajerosPage() {
                         hasPrevPage={pagination.hasPrevPage}
                         hasNextPage={pagination.hasNextPage}
                         className="w-full"
+                        limit={pagination.limit}
+                        onLimitChange={handleLimitChange}
                     />
                 }
                 showRefreshButton={true}

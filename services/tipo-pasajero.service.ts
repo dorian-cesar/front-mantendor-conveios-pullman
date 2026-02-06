@@ -6,10 +6,10 @@ export interface TipoPasajero {
 }
 
 export class TipoPasajeroService {
-    static async getTiposPasajero(): Promise<TipoPasajero[]> {
-        const response = await api.get<TipoPasajero[]>('/tipos-pasajero');
-        return response.data;
-    }
+    // static async getTiposPasajero(): Promise<TipoPasajero[]> {
+    //     const response = await api.get<TipoPasajero[]>('/tipos-pasajero');
+    //     return response.data;
+    // }
 
     static getTiposPasajeroStatic(): TipoPasajero[] {
         return [

@@ -112,6 +112,14 @@ export default function ConveniosPage() {
         setPagination(prev => ({ ...prev, page: newPage }))
     }
 
+    const handleLimitChange = (newLimit: number) => {
+        setPagination(prev => ({
+            ...prev,
+            limit: newLimit,
+            page: 1,
+        }))
+    }
+
     const handleToggleStatus = async (
         id: number,
         currentStatus: "ACTIVO" | "INACTIVO"
@@ -260,6 +268,8 @@ export default function ConveniosPage() {
                         hasPrevPage={pagination.hasPrevPage}
                         hasNextPage={pagination.hasNextPage}
                         className="w-full"
+                        limit={pagination.limit}
+                        onLimitChange={handleLimitChange}
                     />
                 }
                 showRefreshButton={true}
@@ -337,7 +347,7 @@ export default function ConveniosPage() {
                                     </Table.TableCell>
                                     <Table.TableCell>{convenio.tope_monto_ventas ? formatNumber(convenio.tope_monto_ventas) : "Sin tope"}</Table.TableCell>
                                     <Table.TableCell>{convenio.tope_cantidad_tickets ? formatNumber(convenio.tope_cantidad_tickets) : "Sin tope"}</Table.TableCell>
-                                            <Table.TableCell>{convenio.descuento?.porcentaje ? `${formatNumber(convenio.descuento.porcentaje)}%` : "Sin descuento"}</Table.TableCell>
+                                    <Table.TableCell>{convenio.descuento?.porcentaje ? `${formatNumber(convenio.descuento.porcentaje)}%` : "Sin descuento"}</Table.TableCell>
                                     <Table.TableCell className="text-right">
                                         <Dropdown.DropdownMenu>
                                             <Dropdown.DropdownMenuTrigger asChild>

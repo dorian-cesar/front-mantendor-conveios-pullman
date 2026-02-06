@@ -18,6 +18,10 @@
 ### Codigos de descuento
 - [x] agregar vista de códigos de descuento
 - [ ] corregir fechas de inputs en add codigo descuento
+- [ ] agrega combobox en lugar de select para elegir convenio
+
+## Descuentos
+- [ ] quitar campo codigo de descuento para crear un descuento, ahora la relacion es directa con convenios
 
 ### Usuarios
 - [x] conectar usuarios
