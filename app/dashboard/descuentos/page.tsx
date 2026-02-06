@@ -184,9 +184,6 @@ export default function DescuentosPage() {
                 order: "DESC",
             }
 
-            if (debouncedSearch.trim()) {
-                params.search = debouncedSearch.trim()
-            }
 
             if (selectedConvenio) {
                 params.convenio_id = selectedConvenio
@@ -201,11 +198,9 @@ export default function DescuentosPage() {
 
             const formattedData = response.rows.map(desc => ({
                 ID: desc.id,
-                Pasajero: `${desc.pasajero.nombres} ${desc.pasajero.apellidos}`,
-                RUT: formatRut(desc.pasajero.rut),
-                Convenio_ID: desc.convenio_id,
-                Código_Descuento: desc.codigo_descuento.codigo,
-                Tipo_Pasajero: desc.tipo_pasajero.nombre,
+                Convenio_ID: desc.convenio_id ?? "Sin convenio",
+                Código_Descuento: desc.codigo_descuento?.codigo ?? "Sin código",
+                // Tipo_Pasajero: desc.tipo_pasajero.nombre,
                 Porcentaje_Descuento: `${desc.porcentaje_descuento}%`,
                 Estado: desc.status,
             }))
@@ -250,7 +245,7 @@ export default function DescuentosPage() {
                         }
                     ]
                 }}
-                showSearch={true}
+                showSearch={false}
                 searchValue={searchValue}
                 onSearchChange={setSearchValue}
                 onSearchClear={() => setSearchValue("")}
