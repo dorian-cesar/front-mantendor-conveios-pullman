@@ -289,12 +289,9 @@ export default function DescuentosPage() {
                     <Table.TableHeader>
                         <Table.TableRow>
                             <Table.TableHead>ID</Table.TableHead>
-                            <Table.TableHead>Pasajero</Table.TableHead>
-                            <Table.TableHead>RUT</Table.TableHead>
                             <Table.TableHead>Convenio</Table.TableHead>
-                            <Table.TableHead>Empresa</Table.TableHead>
                             <Table.TableHead>Código Descuento</Table.TableHead>
-                            <Table.TableHead>Tipo Pasajero</Table.TableHead>
+                            {/* <Table.TableHead>Tipo Pasajero</Table.TableHead> */}
                             <Table.TableHead>Descuento</Table.TableHead>
                             <Table.TableHead>Status</Table.TableHead>
                             <Table.TableHead className="text-right">Acciones</Table.TableHead>
@@ -321,16 +318,6 @@ export default function DescuentosPage() {
                                 <Table.TableRow key={descuento.id}>
                                     <Table.TableCell>{descuento.id}</Table.TableCell>
 
-                                    <Table.TableCell className="font-medium">
-                                        {descuento?.pasajero?.nombres ?? "sin nombre"} {descuento?.pasajero?.apellidos ?? ""}
-                                    </Table.TableCell>
-
-                                    <Table.TableCell>{
-                                        descuento?.pasajero?.rut ?
-                                            formatRut(descuento?.pasajero?.rut)
-                                            : "sin rut"}
-                                    </Table.TableCell>
-
                                     <Table.TableCell>
                                         {
                                             descuento.convenio_id ?
@@ -339,18 +326,14 @@ export default function DescuentosPage() {
                                     </Table.TableCell>
 
                                     <Table.TableCell>
-                                        {getEmpresaNombre(descuento.convenio_id)}
-                                    </Table.TableCell>
-
-                                    <Table.TableCell>
                                         <span className="font-mono text-sm">
                                             {descuento?.codigo_descuento?.codigo ?? "sin código"}
                                         </span>
                                     </Table.TableCell>
 
-                                    <Table.TableCell>
+                                    {/* <Table.TableCell>
                                         {descuento?.tipo_pasajero?.nombre ?? "sin tipo"}
-                                    </Table.TableCell>
+                                    </Table.TableCell> */}
 
                                     <Table.TableCell>
                                         {descuento.porcentaje_descuento}%

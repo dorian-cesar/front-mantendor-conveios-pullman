@@ -10,8 +10,8 @@ import { useState, useEffect } from "react"
 import { PageHeader } from "@/components/dashboard/page-header"
 import { Pagination } from "@/components/dashboard/Pagination"
 import ExportModal from "@/components/modals/export"
-// import AddCodigoDescuentoModal from "@/components/modals/add-codigo-descuento"
-// import DetailsCodigoDescuentoModal from "@/components/modals/details-codigo-descuento"
+import AddCodigoDescuentoModal from "@/components/modals/add-codigo-descuento"
+import DetailsCodigoDescuentoModal from "@/components/modals/details-codigo-descuento"
 import { CodigosDescuentoService, type CodigoDescuento, type GetCodigosDescuentoParams } from "@/services/codigo-descuento.service"
 import { ConveniosService, type Convenio } from "@/services/convenio.service"
 import { toast } from "sonner"
@@ -314,11 +314,11 @@ export default function CodigosDescuentoPage() {
                             <Table.TableHead>ID</Table.TableHead>
                             <Table.TableHead>Código</Table.TableHead>
                             <Table.TableHead>Convenio</Table.TableHead>
-                            <Table.TableHead>Empresa</Table.TableHead>
                             <Table.TableHead>Vigencia</Table.TableHead>
                             <Table.TableHead>Usos</Table.TableHead>
                             <Table.TableHead>Estado</Table.TableHead>
                             <Table.TableHead>Vigente</Table.TableHead>
+                            <Table.TableHead>Descuento</Table.TableHead>
                             <Table.TableHead className="text-right">Acciones</Table.TableHead>
                         </Table.TableRow>
                     </Table.TableHeader>
@@ -353,9 +353,6 @@ export default function CodigosDescuentoPage() {
                                         {codigo.convenio?.nombre || "Sin convenio"}
                                     </Table.TableCell>
                                     <Table.TableCell>
-                                        {codigo.convenio?.empresa?.nombre || "Sin empresa"}
-                                    </Table.TableCell>
-                                    <Table.TableCell>
                                         {codigo.fecha_inicio
                                             ? formatDateOnly(codigo.fecha_inicio)
                                             : "Sin inicio"}
@@ -380,6 +377,11 @@ export default function CodigosDescuentoPage() {
                                                 ? <BadgeStatus status="active">Vigente</BadgeStatus>
                                                 : <BadgeStatus status="inactive">No vigente</BadgeStatus>
                                         }
+                                    </Table.TableCell>
+                                    <Table.TableCell>
+                                        {codigo.descuentos?.[0]?.porcentaje !== undefined
+                                            ? `${formatNumber(codigo.descuentos[0].porcentaje)}%`
+                                            : "Sin descuento"}
                                     </Table.TableCell>
                                     <Table.TableCell className="text-right">
                                         <Dropdown.DropdownMenu>
@@ -437,7 +439,7 @@ export default function CodigosDescuentoPage() {
                 onOpenChange={setOpenExport}
                 onExport={handleExport}
             />
-            {/* 
+
             <AddCodigoDescuentoModal
                 open={openAdd}
                 onOpenChange={setOpenAdd}
@@ -448,7 +450,7 @@ export default function CodigosDescuentoPage() {
                 open={openDetails}
                 onOpenChange={setOpenDetails}
                 codigo={selectedCodigo}
-            /> */}
+            />
         </div>
     )
 }

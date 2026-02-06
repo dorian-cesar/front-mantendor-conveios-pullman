@@ -16,6 +16,9 @@
 - [ ] agregar vista de códigos de descuento
 - [ ] conectar descuentos y códigos de descuento
 
+### Convenios
+- [ ] corregir fechas de inputs en add codigo descuento
+
 ### Usuarios
 - [ ] conectar usuarios
 - [ ] validar roles
@@ -40,6 +43,7 @@
 
 ### Descuentos
 - [ ] Agregar filtro de búsqueda
+- [ ] corregir requerimiento de tipo de pasajero
 
 ### Convenios
 - [ ] arreglar api delete convenios
@@ -58,7 +62,6 @@ ReferenceError: ValidationError is not defined
     at /home/bitnami/backend-convenios-pullman/node_modules/router/index.js:688:15
     at next (/home/bitnami/backend-convenios-pullman/node_modules/router/index.js:276:14)
 ```
-<!-- - [ ] agregar campo fecha_inicio - fecha_termino en la creacion (post) de un convenio -->
 
 ---
 
