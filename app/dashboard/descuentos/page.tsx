@@ -12,7 +12,7 @@ import { Pagination } from "@/components/dashboard/Pagination"
 import ExportModal from "@/components/modals/export"
 import AddDescuentoModal from "@/components/modals/add-descuento"
 import UpdateDescuentoModal from "@/components/modals/update-descuento"
-// import DetailsDescuentoModal from "@/components/modals/details-descuento"
+import DetailsDescuentoModal from "@/components/modals/details-descuento"
 import { DescuentosService, type Descuento, type GetDescuentosParams } from "@/services/descuento.service"
 import { ConveniosService, type Convenio } from "@/services/convenio.service"
 import { CodigosDescuentoService, type CodigoDescuento } from "@/services/codigo-descuento.service"
@@ -414,15 +414,15 @@ export default function DescuentosPage() {
                 onOpenChange={setOpenUpdate}
                 descuento={selectedDescuento}
                 onSuccess={handleDescuentoUpdated}
-                // convenios={convenios}
-                // codigos={codigos}
+            // convenios={convenios}
+            // codigos={codigos}
             />
 
-            {/* <DetailsDescuentoModal
+            <DetailsDescuentoModal
                 open={openDetails}
                 onOpenChange={setOpenDetails}
                 descuento={selectedDescuento}
-            /> */}
+            />
         </div>
     )
 }
